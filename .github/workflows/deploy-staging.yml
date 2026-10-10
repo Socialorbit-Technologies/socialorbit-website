@@ -32,8 +32,7 @@ jobs:
         env:
           DIR: ${{ secrets.FTP_SERVER_DIR || vars.FTP_SERVER_DIR || 'public_html/staging/' }}
         run: |
-          DIR="$(printf '%s' "$DIR" | tr -d '
-' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+          DIR="$(printf '%s' "$DIR" | tr -d '[:space:]')"
           case "$DIR" in */) ;; *) DIR="$DIR/" ;; esac
           echo "path=$DIR" >> "$GITHUB_OUTPUT"
 
