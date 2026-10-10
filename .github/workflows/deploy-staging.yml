@@ -27,6 +27,14 @@ jobs:
             exit 1
           fi
 
+      - name: Resolve target folder
+        id: dir
+        env:
+          DIR: ${{ secrets.FTP_SERVER_DIR || vars.FTP_SERVER_DIR || 'public_html/staging/' }}
+        run: |
+          case "$DIR" in */) ;; *) DIR="$DIR/" ;; esac
+          echo "path=$DIR" >> "$GITHUB_OUTPUT"
+
       - name: Upload over FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -34,7 +42,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
-          server-dir: ${{ secrets.FTP_SERVER_DIR || vars.FTP_SERVER_DIR || 'public_html/staging/' }}
+          server-dir: ${{ steps.dir.outputs.path }}
           exclude: |
             **/.git*
             **/.git*/**
