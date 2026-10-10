@@ -1,0 +1,17 @@
+name: FTP debug (temporary)
+on: workflow_dispatch
+jobs:
+  ls:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt-get install -y -qq lftp >/dev/null
+      - env:
+          S: ${{ secrets.FTP_SERVER }}
+          U: ${{ secrets.FTP_USERNAME }}
+          P: ${{ secrets.FTP_PASSWORD }}
+          D: ${{ secrets.FTP_SERVER_DIR }}
+        run: |
+          D="$(printf '%s' "$D" | tr -d '[:space:]')"
+          echo "dir length=${#D} starts_with_slash=$([ "${D#/}" != "$D" ] && echo y || echo n)"
+          echo "dir parts: $(printf '%s' "$D" | tr '/' '\n' | sed 's/./&​/g' | paste -sd '|')"
+          lftp -u "$U","$P" -e "set ftp:ssl-allow yes; set ssl:verify-certificate no; pwd; echo ROOT:; cls -1 --sort=name; echo PUBLIC_HTML:; cls -1 public_html/ | head -40; echo TARGET:; cls -1 \"$D\"; bye" "$S" 2>&1 | sed 's/^/  /'
