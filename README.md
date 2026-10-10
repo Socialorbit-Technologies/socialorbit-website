@@ -43,3 +43,14 @@ They are **duplicated per page**, which suits a small `file://`-safe static site
 - Copy comes from the current socialorbit.net. Nothing in it is invented proof such as stats, testimonials or client logos. The tools strip lists integrations, not clients.
 - Every animation respects `prefers-reduced-motion`.
 - Tested at 1440px, 900px and 390px. No horizontal overflow and no console errors.
+
+## Staging deploy
+
+Every push to `main` deploys to **https://socialorbit.net/staging/** via `.github/workflows/deploy-staging.yml` (FTPS to the WordPress host).
+
+One-time setup in GitHub → Settings → Secrets and variables → Actions:
+
+- Secrets: `FTP_SERVER` (e.g. `ftp.socialorbit.net`), `FTP_USERNAME`, `FTP_PASSWORD` (from the hosting cPanel → FTP Accounts)
+- Variable (optional): `FTP_SERVER_DIR`, default `public_html/staging/`. If the FTP account is already rooted at `public_html`, set it to `staging/`.
+
+Keep the `noindex` meta on staging pages.

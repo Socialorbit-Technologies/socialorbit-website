@@ -1,0 +1,43 @@
+# Deploys the site to https://socialorbit.net/staging/ over FTP on every push to main.
+# Needs repo secrets FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
+# Optional repo variable FTP_SERVER_DIR (default: public_html/staging/), relative to the FTP account's root.
+name: Deploy to staging
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check FTP secrets
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        run: |
+          if [ -z "$FTP_SERVER" ]; then
+            echo "::error::FTP_SERVER / FTP_USERNAME / FTP_PASSWORD repo secrets are not set."
+            exit 1
+          fi
+
+      - name: Upload over FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          server-dir: ${{ vars.FTP_SERVER_DIR || 'public_html/staging/' }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            README.md
+            bust-cache.py
